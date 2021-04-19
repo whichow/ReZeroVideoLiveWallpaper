@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -23,6 +24,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
@@ -45,9 +48,9 @@ public class MainActivity extends Activity {
 //        LinearLayout layout = new LinearLayout(this);
 //        layout.setGravity(Gravity.CENTER);
 //        layout.setOrientation(LinearLayout.VERTICAL);
-
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.main_activity);
-
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 //        ScrollView scrollView = new ScrollView(this);
 //        ScrollView.LayoutParams params = new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.MATCH_PARENT);
 //        scrollView.setLayoutParams(params);
@@ -88,21 +91,42 @@ public class MainActivity extends Activity {
             int columnNum = 2;
             for (int i = 0; i < list.length; i += columnNum) {
                 TableRow row = new TableRow(this);
+//                TableLayout.LayoutParams rowParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.MATCH_PARENT);
+//                rowParams.weight = 1;
+//                row.setLayoutParams(rowParams);
                 table.addView(row);
                 for(int j = 0; j < columnNum; j++) {
                     final int index = i + j;
                     if(index < list.length) {
-                        ImageButton imageButton = new ImageButton(this);
+                        final ImageButton imageButton = new ImageButton(this);
                         TableRow.LayoutParams buttonParams = new TableRow.LayoutParams(0, 800);
                         buttonParams.weight = 1f;
                         imageButton.setLayoutParams(buttonParams);
+                        imageButton.setBackgroundColor(Color.WHITE);
+                        imageButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                        imageButton.setPadding(0, 0, 0, 0);
+//                        imageButton.setAdjustViewBounds(true);
 
                         final String videoFile = "videos/" + list[index];
-                        final AssetFileDescriptor descriptor = getAssets().openFd(videoFile);
-                        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                        retriever.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
-                        Bitmap bitmap = retriever.getFrameAtTime();
-                        imageButton.setImageBitmap(bitmap);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    final AssetFileDescriptor descriptor = getAssets().openFd(videoFile);
+                                    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                                    retriever.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+                                    final Bitmap bitmap = retriever.getFrameAtTime();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            imageButton.setImageBitmap(bitmap);
+                                        }
+                                    });
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
 
                         imageButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -123,6 +147,9 @@ public class MainActivity extends Activity {
                         TableRow.LayoutParams buttonParams = new TableRow.LayoutParams(0, 800);
                         buttonParams.weight = 1f;
                         image.setLayoutParams(buttonParams);
+                        image.setBackgroundColor(Color.WHITE);
+                        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//                        image.setAdjustViewBounds(true);
                         row.addView(image);
                     }
                 }
