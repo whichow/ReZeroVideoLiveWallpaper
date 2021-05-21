@@ -42,11 +42,11 @@
                 android:resource="@xml/livewallpaper" />
         </service>
 		
-        <receiver android:name="com.rezero.videolivewallpaper.BootBroadCast" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver android:name="com.rezero.videolivewallpaper.BootBroadCast" >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
 
 </manifest>
